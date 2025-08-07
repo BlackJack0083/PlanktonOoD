@@ -1,0 +1,1 @@
+这个仓库是关于论文《Benchmarking Out-of-Distribution Detection for Plankton Recognition: A Systematic Evaluation of Advanced Methods in Marine Ecological Monitoring》 的相关实现代码
