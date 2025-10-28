@@ -8,7 +8,7 @@ Original dataset should be placed in `./data`.
 
 ### Creating an imglist for your new dataset
 
-You may use `imglist_generator.py` to generator an imglist for your new dataset, or making an personalize scirpt according to your ideas like `split_dataset_new_class.py`.
+You may use `imglist_generator.py` to generate an imglist for your new dataset, or making an personalized scirpt according to your ideas like `split_dataset_new_class.py`.
 
 > Tip: If your dataset path contains spaces, please note that you need to change `split` to `rsplit` in `line 60` of `openood/datasets/imglist_dataset.py` (we have already made this adjustment).
 
@@ -26,7 +26,7 @@ You may make any changes in `scripts/eval_ood.py` to fit your new datasets:
 #### `Line 57`
 
 ```Python
-NUM_CLASSES = {'cifar10': 10, 'cifar100': 100, 'imagenet200': 200， 'plankton54': 54} # Add your new datasets and the corresponding numbers of classes here.
+NUM_CLASSES = {'cifar10': 10, 'cifar100': 100, 'imagenet200': 200, 'plankton54': 54} # Add your new datasets and the corresponding numbers of classes here.
 
 MODEL = {
     'cifar10': ResNet18_32x32,

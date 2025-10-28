@@ -1,7 +1,7 @@
 postprocessor:
-  name: vim
+  name: relation
   APS_mode: True
   postprocessor_args:
-    dim: 256
+    pow: 1
   postprocessor_sweep:
-    dim_list: [4, 16,  64,  256]
+    pow_list: [1, 2, 4, 6, 8]

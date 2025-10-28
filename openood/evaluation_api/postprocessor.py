@@ -13,7 +13,9 @@ from openood.postprocessors import (
     Rd4adPostprocessor, ReactPostprocessor, ResidualPostprocessor,
     SSDPostprocessor, TemperatureScalingPostprocessor, VIMPostprocessor,
     RotPredPostprocessor, RankFeatPostprocessor, RMDSPostprocessor,
-    SHEPostprocessor, CIDERPostprocessor, NPOSPostprocessor)
+    SHEPostprocessor, CIDERPostprocessor, NPOSPostprocessor,
+    fDBDPostprocessor, GENPostprocessor, RelationPostprocessor #new method in latest OpenOoD
+    )
 from openood.utils.config import Config, merge_configs
 
 postprocessors = {
@@ -54,7 +56,10 @@ postprocessors = {
     'she': SHEPostprocessor,
     'rd4ad': Rd4adPostprocessor,
     'rotpred': RotPredPostprocessor,
-    'rankfeat': RankFeatPostprocessor
+    'rankfeat': RankFeatPostprocessor,
+    'fdbd': fDBDPostprocessor, #new method in latest OpenOoD
+    'gen': GENPostprocessor, #new method in latest OpenOoD
+    'relation': RelationPostprocessor, #new method in latest OpenOoD
 }
 
 link_prefix = 'https://raw.githubusercontent.com/Jingkang50/OpenOOD/main/configs/postprocessors/'

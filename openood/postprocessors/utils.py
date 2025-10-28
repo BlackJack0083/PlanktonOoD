@@ -1,5 +1,6 @@
 from openood.utils import Config
 
+from .fdbd_postprocessor import fDBDPostprocessor
 from .ash_postprocessor import ASHPostprocessor
 from .base_postprocessor import BasePostprocessor
 from .cider_postprocessor import CIDERPostprocessor
@@ -36,12 +37,16 @@ from .rankfeat_postprocessor import RankFeatPostprocessor
 from .ssd_postprocessor import SSDPostprocessor
 from .she_postprocessor import SHEPostprocessor
 from .temp_scaling_postprocessor import TemperatureScalingPostprocessor
+from .t2fnorm_postprocessor import T2FNormPostprocessor
 from .vim_postprocessor import VIMPostprocessor
 from .rts_postprocessor import RTSPostprocessor
+from .gen_postprocessor import GENPostprocessor
+from .relation_postprocessor import RelationPostprocessor
 
 
 def get_postprocessor(config: Config):
     postprocessors = {
+        'fdbd': fDBDPostprocessor,
         'ash': ASHPostprocessor,
         'cider': CIDERPostprocessor,
         'conf_branch': ConfBranchPostprocessor,
@@ -79,7 +84,10 @@ def get_postprocessor(config: Config):
         'rd4ad': Rd4adPostprocessor,
         'rts': RTSPostprocessor,
         'rotpred': RotPredPostprocessor,
-        'rankfeat': RankFeatPostprocessor
+        'rankfeat': RankFeatPostprocessor,
+        'gen': GENPostprocessor,
+        'relation': RelationPostprocessor,
+        't2fnorm': T2FNormPostprocessor,
     }
 
     return postprocessors[config.postprocessor.name](config)

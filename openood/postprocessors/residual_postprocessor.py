@@ -15,6 +15,7 @@ class ResidualPostprocessor(BasePostprocessor):
         super().__init__(config)
         self.args = self.config.postprocessor.postprocessor_args
         self.dim = self.args.dim
+        # self.dim = 256  # 针对 ResNet18
 
     def setup(self, net: nn.Module, id_loader_dict, ood_loader_dict):
         net.eval()
@@ -54,6 +55,34 @@ class ResidualPostprocessor(BasePostprocessor):
 
         self.score_id = -norm(np.matmul(feature_id_val - self.u, self.NS),
                               axis=-1)
+        
+        print(f"w shape: {self.w.shape}")
+        print(f"b shape: {self.b.shape}")
+        print(f"id_train feature shape: {feature_id_train.shape}")
+
+        # 检查 pinv 的结果
+        w_pinv = pinv(self.w)
+        print(f"pinv(w) shape: {w_pinv.shape}")
+
+        # 检查 u 的值
+        self.u = -np.matmul(w_pinv, self.b)
+        print(f"u shape: {self.u.shape}")
+        print(f"u values: {self.u[:5]}") # 打印前几个值，检查是否有 nan 或 inf
+
+        # 检查协方差矩阵和特征值
+        ec = EmpiricalCovariance(assume_centered=True)
+        ec.fit(feature_id_train - self.u)
+        eig_vals, eigen_vectors = np.linalg.eig(ec.covariance_)
+        print(f"eig_vals: {eig_vals[:5]}") # 检查特征值，确保没有非数值
+
+        # 检查 NS 的维度
+        sorted_indices = np.argsort(eig_vals * -1)
+        if self.dim >= len(eig_vals):
+            print(f"Error: self.dim ({self.dim}) is too large for eigen values ({len(eig_vals)})")
+            # 你的程序很可能在这里崩溃
+
+        self.NS = np.ascontiguousarray((eigen_vectors.T[sorted_indices[self.dim:]]).T)
+        print(f"NS shape: {self.NS.shape}")
 
     @torch.no_grad()
     def postprocess(self, net: nn.Module, data: Any):

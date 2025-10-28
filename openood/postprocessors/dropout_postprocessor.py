@@ -22,3 +22,4 @@ class DropoutPostProcessor(BasePostprocessor):
         score = torch.softmax(logits_mean, dim=1)
         conf, pred = torch.max(score, dim=1)
         return pred, conf
+
