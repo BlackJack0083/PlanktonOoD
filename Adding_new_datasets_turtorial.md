@@ -73,6 +73,8 @@ DATA_INFO = {
 
 ```
 
+
+
 #### `download_id_dict` (optional)
 
 If you'd like to configure an automatically downloadable link for your dataset, you may adding your datasets and links into `download_id_dict` in `openood/evaluation_api/datasets.py`
@@ -86,7 +88,28 @@ download_id_dict = {
 }
 ```
 
+#### `benchmarks_dict`
+
+```python 
+benchmarks_dict = {
+    'cifar10':
+    ['cifar10', 'cifar100', 'tin', 'mnist', 'svhn', 'texture', 'places365'],
+    # Add your new benchmarks here.
+}
+```
 
 ### `preprocessor.py`
 
 You may make any changes in `openood/evaluation_api/preprocessor.py` to fit your new datasets:
+
+```python
+default_preprocessing_dict = {
+    'cifar10': {
+        'pre_size': 32,
+        'img_size': 32,
+        'normalization': [[0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]],
+    }
+        ...
+    # Add your new datasets and preprocessing information here.
+}
+```
