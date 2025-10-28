@@ -1,0 +1,42 @@
+dataset:
+  name: plankton50
+  num_classes: 50
+  pre_size: 256
+  image_size: 224
+  interpolation: bilinear
+  #normalization_type: imagenet
+  normalization_type: plankton50
+  num_workers: '@{num_workers}'
+  num_gpus: '@{num_gpus}'
+  num_machines: '@{num_machines}'
+  split_names: [train, val, test]
+
+  train:
+    dataset_class: ImglistDataset
+    data_dir: ./data/DYB-PlanktonNet/
+    imglist_pth: ./data/benchmark_imglist/plankton/ID_train.txt
+    batch_size: 64
+    shuffle: True
+
+  val:
+    dataset_class: ImglistDataset
+    data_dir: ./data/DYB-PlanktonNet/
+    imglist_pth: ./data/benchmark_imglist/plankton/ID_val.txt
+    batch_size: 64
+    shuffle: False
+
+  test:
+    dataset_class: ImglistDataset
+    data_dir: ./data/DYB-PlanktonNet/
+    imglist_pth: ./data/benchmark_imglist/plankton/ID_test.txt
+    batch_size: 64
+    shuffle: False
+
+  ood:
+    dataset_class: ImglistDataset
+    data_dir: ./data/DYB-PlanktonNet/
+    imglist_pth: ./data/benchmark_imglist/plankton/OOD_test.txt
+    batch_size: 64
+    shuffle: False
+
+
