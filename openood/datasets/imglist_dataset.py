@@ -57,7 +57,9 @@ class ImglistDataset(BaseDataset):
 
     def getitem(self, index):
         line = self.imglist[index].strip('\n')
-        tokens = line.split(' ', 1)
+        #tokens = line.split(' ', 1)
+        #FIX: Use rsplit to correctly separate the path and the label.
+        tokens = line.rsplit(maxsplit=1)
         image_name, extra_str = tokens[0], tokens[1]
         if self.data_dir != '' and image_name.startswith('/'):
             raise RuntimeError('image_name starts with "/"')
