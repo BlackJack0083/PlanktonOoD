@@ -15,6 +15,84 @@ from openood.preprocessors import BasePreprocessor
 from .preprocessor import get_default_preprocessor, ImageNetCPreProcessor
 
 DATA_INFO = {
+    'plankton54': {
+        'num_classes': 54,
+        'id': {
+            'train': {
+                'data_dir': 'DYB-PlanktonNet/',
+                'imglist_path': 'benchmark_imglist/plankton54/ID_train.txt'
+            },
+            'val': {
+                'data_dir': 'DYB-PlanktonNet/',
+                'imglist_path': 'benchmark_imglist/plankton54/ID_val.txt'
+            },
+            'test': {   # 添加 test 分支
+                'data_dir': 'DYB-PlanktonNet/',
+                'imglist_path': 'benchmark_imglist/plankton54/ID_test.txt'
+            }
+        },
+        'ood': {
+            'val': {
+                'data_dir': 'DYB-PlanktonNet/',
+                'imglist_path': 'benchmark_imglist/plankton54/plankton_near_val.txt'
+            },
+            'near': {
+                'datasets': ['plankton_near_test'],
+                'plankton_near_test': {
+                    'data_dir': 'DYB-PlanktonNet/',
+                    'imglist_path': 'benchmark_imglist/plankton54/plankton_near_test.txt'
+                }
+            },
+            'far': {
+                'datasets': ['plankton_far_test', 'cifar10', 'cifar100', 'mnist', 'svhn', 'texture', 'places365', 'tin'],
+                'plankton_far_test':{
+                    'data_dir': 'DYB-PlanktonNet/',
+                    'imglist_path': 'benchmark_imglist/plankton54/plankton_far_test.txt'
+                },
+                'cifar10': {
+                    'data_dir': 'images_classic/',
+                    'imglist_path': 'benchmark_imglist/cifar10/test_cifar10.txt'
+                },
+                'cifar100': {
+                    'data_dir': 'images_classic/',
+                    'imglist_path': 'benchmark_imglist/cifar10/test_cifar100.txt'
+                },
+                'mnist': {
+                    'data_dir': 'images_classic/',
+                    'imglist_path': 'benchmark_imglist/cifar100/test_mnist.txt'
+                },
+                'svhn': {
+                    'data_dir': 'images_classic/',
+                    'imglist_path': 'benchmark_imglist/cifar100/test_svhn.txt'
+                },
+                'texture': {
+                    'data_dir': 'images_classic/',
+                    'imglist_path':
+                    'benchmark_imglist/cifar100/test_texture.txt'
+                },
+                'places365': {
+                    'data_dir': 'images_classic/',
+                    'imglist_path':
+                    'benchmark_imglist/cifar100/test_places365.txt'
+                },
+                'tin': {
+                    'data_dir': 'images_classic/',
+                    'imglist_path': 'benchmark_imglist/cifar100/test_tin.txt'
+                },
+                # 'inaturalist': {
+                #     'data_dir':
+                #     'images_largescale/',
+                #     'imglist_path':
+                #     'benchmark_imglist/imagenet/test_inaturalist.txt'
+                # },
+            }
+        },
+
+        'csid': {
+            'datasets': []   # 如果没有 csid 数据，这里保持空列表即可
+        }
+    },
+
     'cifar10': {
         'num_classes': 10,
         'id': {
@@ -243,7 +321,8 @@ DATA_INFO = {
             }
         },
         'csid': {
-            'datasets': ['imagenet_v2', 'imagenet_c', 'imagenet_r'],
+            'datasets':
+            ['imagenet_v2', 'imagenet_c', 'imagenet_r', 'imagenet_es'],
             'imagenet_v2': {
                 'data_dir': 'images_largescale/',
                 'imglist_path':
@@ -258,6 +337,11 @@ DATA_INFO = {
                 'data_dir': 'images_largescale/',
                 'imglist_path':
                 'benchmark_imglist/imagenet/test_imagenet_r.txt'
+            },
+            'imagenet_es': {
+                'data_dir': 'images_largescale/',
+                'imglist_path':
+                'benchmark_imglist/imagenet/test_imagenet_es.txt'
             },
         },
         'ood': {
@@ -358,6 +442,7 @@ benchmarks_dict = {
         'imagenet_1k', 'ssb_hard', 'ninco', 'inaturalist', 'texture',
         'openimage_o', 'imagenet_v2', 'imagenet_c', 'imagenet_r'
     ],
+    'plankton54': ['plankton54', 'cifar10', 'cifar100', 'tin', 'mnist', 'svhn', 'texture', 'places365']
 }
 
 

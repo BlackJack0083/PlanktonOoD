@@ -100,7 +100,7 @@ aliases = [
 # -------------------------------
 id_data = "plankton54"
 # 基础结果目录：为避免不同方法输出文件互相覆盖，每个方法将输出到 base_root/<alias> 子目录
-base_root = "results/plankton54_resnet152_base_e100_lr0.1_default"
+base_root = "results/plankton54_resnet50_base_e100_lr0.1_default"
 # 公共参数
 common_args = f"--id-data {id_data} --save-score --save-csv"
 

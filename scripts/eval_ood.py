@@ -39,8 +39,8 @@ parser.add_argument('--postprocessor', default='msp')
 parser.add_argument(
     '--id-data',
     type=str,
-    default='cifar10',
-    choices=['cifar10', 'cifar100', 'aircraft', 'cub', 'imagenet200'])
+    default='plankton54',
+    choices=['cifar10', 'cifar100', 'aircraft', 'cub', 'imagenet200','plankton54'])
 parser.add_argument('--batch-size', type=int, default=200)
 parser.add_argument('--save-csv', action='store_true')
 parser.add_argument('--save-score', action='store_true')
@@ -53,11 +53,12 @@ root = args.root
 # 'openmax', 'msp', 'temp_scaling', 'odin'...
 postprocessor_name = args.postprocessor
 
-NUM_CLASSES = {'cifar10': 10, 'cifar100': 100, 'imagenet200': 200}
+NUM_CLASSES = {'cifar10': 10, 'cifar100': 100, 'imagenet200': 200, 'plankton54': 54}
 MODEL = {
     'cifar10': ResNet18_32x32,
     'cifar100': ResNet18_32x32,
     'imagenet200': ResNet18_224x224,
+    'plankton54': ResNet50
 }
 
 try:
