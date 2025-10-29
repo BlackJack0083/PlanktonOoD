@@ -126,7 +126,8 @@ def download_dataset(dataset, args):
                 os.makedirs(store_path)
             break
     else:
-        print('Invalid dataset detected {}'.format(dataset))
+        print(f'Warning: Dataset "{dataset}" is not configured for automatic download and will be skipped.')
+        # We assume it is a custom or locally prepared dataset and skip the download step.
         return
 
     if require_download(dataset, store_path):
