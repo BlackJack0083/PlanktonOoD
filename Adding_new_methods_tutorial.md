@@ -1,2 +1,2 @@
-- Add new configuration files in `configs/postprocessors`
-- Place the methods' modules in `openood/postprocessors`, and import them in `openood/postprocessors/__init__.py` and `openood/evaluation_api/postprocessor.py`
+- Adding new confugation files in `configs/postprocessors`
+- Place the method's file in `openood/postprocessors`, and import them in `openood/postprocessors/__init__.py` and `openood/evaluation_api/postprocessor.py`
