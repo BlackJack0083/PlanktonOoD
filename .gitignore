@@ -169,4 +169,5 @@ local/
 
 output.log
 
-Plankton-OoD-repo.code-workspace
+.vscode/
+*.code-workspace
