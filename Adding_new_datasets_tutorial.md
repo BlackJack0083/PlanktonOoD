@@ -28,6 +28,18 @@ network:
   num_gpus: '@{num_gpus}'
 ```
 
+
+### Complete the normalization settings (Recommended)
+
+You may make any changes in `openood/preprocessors/transform.py` to fit your new datasets:
+
+```python
+normalization_dict = {
+    'cifar10': [[0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]],
+    # Add your new datasets and normalization settings here.
+}
+```
+
 ## Training Stage
 
 Place your `.yml` file into `configs/datasets` as the configuration you like.
@@ -102,6 +114,7 @@ download_id_dict = {
     # Add your datasets and links here.
 }
 ```
+
 
 #### `benchmarks_dict`
 
