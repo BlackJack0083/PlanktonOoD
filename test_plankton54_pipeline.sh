@@ -8,4 +8,4 @@ python main.py \
     --num_workers 4 --num_gpus 2
 
 
-python test_all_plankton54.py
+python test_all_plankton.py
