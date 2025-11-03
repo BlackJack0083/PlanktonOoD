@@ -12,6 +12,8 @@ from openood.evaluators.metrics import compute_all_metrics
 from openood.postprocessors import BasePostprocessor
 from openood.networks.ash_net import ASHNet
 from openood.networks.react_net import ReactNet
+from openood.networks.scale_net import ScaleNet
+from openood.networks.adascale_net import AdaScaleANet, AdaScaleLNet
 
 from .datasets import DATA_INFO, data_setup, get_id_ood_dataloader
 from .postprocessor import get_postprocessor
@@ -88,7 +90,7 @@ class Evaluator:
         # set up config root
         if config_root is None:
             filepath = os.path.dirname(os.path.abspath(__file__))
-            config_root = os.path.join(*filepath.split('/')[:-2], 'configs')
+            config_root = os.path.join('/', *filepath.split('/')[:-2], 'configs')
 
         # get postprocessor
         if postprocessor is None:
@@ -113,6 +115,12 @@ class Evaluator:
             net = ReactNet(net)
         elif postprocessor_name == 'ash':
             net = ASHNet(net)
+        elif postprocessor_name == 'scale':
+            net = ScaleNet(net)
+        elif postprocessor_name == 'adascale_a':
+            net = AdaScaleANet(net)
+        elif postprocessor_name == 'adascale_l':
+            net = AdaScaleLNet(net)
 
         # postprocessor setup
         postprocessor.setup(net, dataloader_dict['id'], dataloader_dict['ood'])
@@ -296,19 +304,31 @@ class Evaluator:
 
             if self.metrics[f'{id_name}_acc'] is None:
                 self.eval_acc(id_name)
-            near_metrics[:, -1] = np.array([self.metrics[f'{id_name}_acc']] *
-                                           len(near_metrics))
-            far_metrics[:, -1] = np.array([self.metrics[f'{id_name}_acc']] *
-                                          len(far_metrics))
 
+# Fix____________________________________________________________________
+            acc_value = self.metrics[f'{id_name}_acc']
+
+            # Creating (M, 1) column ACC 
+            near_acc_col = np.full((near_metrics.shape[0], 1), acc_value)
+            far_acc_col = np.full((far_metrics.shape[0], 1), acc_value)
+            
+
+            near_metrics = np.hstack([near_metrics, near_acc_col])
+            far_metrics = np.hstack([far_metrics, far_acc_col])
+
+            # near_metrics[:, -1] = np.array([self.metrics[f'{id_name}_acc']] *
+            #                                len(near_metrics))
+            # far_metrics[:, -1] = np.array([self.metrics[f'{id_name}_acc']] *
+            #                               len(far_metrics))
+# Fix done___________________________________________________________________
             self.metrics[task] = pd.DataFrame(
                 np.concatenate([near_metrics, far_metrics], axis=0),
                 index=list(self.dataloader_dict['ood']['near'].keys()) +
                 ['nearood'] + list(self.dataloader_dict['ood']['far'].keys()) +
                 ['farood'],
                 columns=[
-                    'FPR@95', 'AUROC', 'AUPR_IN', 'AUPR_OUT', 'CCR_4', 'CCR_3',
-                    'CCR_2', 'CCR_1', 'ACC'
+                    'FPR95_ID', 'FPR99_ID', 'FPR95_OOD', 'FPR99_OOD', 'AUROC',
+                    'AUPR_IN', 'AUPR_OUT', 'ACC'
                 ],
             )
         else:
@@ -364,21 +384,24 @@ class Evaluator:
         return np.concatenate([metrics_list, metrics_mean], axis=0) * 100
 
     def _print_metrics(self, metrics):
-        [fpr, auroc, aupr_in, aupr_out,
-         ccr_4, ccr_3, ccr_2, ccr_1, _] \
-         = metrics
+        [fpr95_id, fpr99_id, fpr95_ood, fpr99_ood, auroc, aupr_in, aupr_out] = metrics
 
-        # print ood metric results
-        print('FPR@95: {:.2f}, AUROC: {:.2f}'.format(100 * fpr, 100 * auroc),
-              end=' ',
-              flush=True)
-        print('AUPR_IN: {:.2f}, AUPR_OUT: {:.2f}'.format(
-            100 * aupr_in, 100 * aupr_out),
-              flush=True)
-        print('CCR: {:.2f}, {:.2f}, {:.2f}, {:.2f},'.format(
-            ccr_4 * 100, ccr_3 * 100, ccr_2 * 100, ccr_1 * 100),
-              end=' ',
-              flush=True)
+        # Print all FPR metrics
+        print(
+            f'FPR95_ID: {100 * fpr95_id:.2f}, '
+            f'FPR99_ID: {100 * fpr99_id:.2f}, '
+            f'FPR95_OOD: {100 * fpr95_ood:.2f}, '
+            f'FPR99_OOD: {100 * fpr99_ood:.2f}',
+            flush=True)
+        
+        # Print AUC metrics
+        print(
+            'AUROC: {:.2f}, AUPR_IN: {:.2f}, AUPR_OUT: {:.2f}'.format(
+                100 * auroc, 100 * aupr_in, 100 * aupr_out),
+            flush=True)
+            
+        #print(u'ACC: {:.2f}'.format(100 * accuracy), flush=True)
+
         print(u'\u2500' * 70, flush=True)
         print('', flush=True)
 
@@ -413,7 +436,7 @@ class Evaluator:
             conf = np.concatenate([id_conf, ood_conf])
             label = np.concatenate([id_gt, ood_gt])
             ood_metrics = compute_all_metrics(conf, label, pred)
-            auroc = ood_metrics[1]
+            auroc = ood_metrics[4] # Fix the pos here.
 
             print('Hyperparam: {}, auroc: {}'.format(hyperparam, auroc))
             if auroc > max_auroc:

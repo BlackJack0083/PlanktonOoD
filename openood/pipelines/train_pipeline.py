@@ -30,6 +30,10 @@ class TrainPipeline:
         # init network
         net = get_network(self.config.network)
 
+        if self.config.num_gpus * self.config.num_machines > 1:
+            net = torch.nn.SyncBatchNorm.convert_sync_batchnorm(net)
+
+
         # init trainer and evaluator
         trainer = get_trainer(net, train_loader, val_loader, self.config)
         evaluator = get_evaluator(self.config)
@@ -40,6 +44,10 @@ class TrainPipeline:
 
             print('Start training...', flush=True)
         for epoch_idx in range(1, self.config.optimizer.num_epochs + 1):
+            if isinstance(train_loader.sampler,
+                          torch.utils.data.distributed.DistributedSampler):
+                train_loader.sampler.set_epoch(epoch_idx - 1)
+
             # train and eval the model
             if self.config.trainer.name == 'mos':
                 net, train_metrics, num_groups, group_slices = \
@@ -50,7 +58,7 @@ class TrainPipeline:
                                                  epoch_idx,
                                                  num_groups=num_groups,
                                                  group_slices=group_slices)
-            elif self.config.trainer.name in ['cider', 'npos']:
+            elif self.config.trainer.name in ['cider', 'npos', 'palm', 'reweightood']:
                 net, train_metrics = trainer.train_epoch(epoch_idx)
                 # cider and npos only trains the backbone
                 # cannot evaluate ID acc without training the fc layer

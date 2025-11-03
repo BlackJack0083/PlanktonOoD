@@ -66,6 +66,7 @@ def get_dataloader(config: Config):
                                     num_workers=dataset_config.num_workers,
                                     sampler=sampler)
         else:
+            print("[DEBUG] split_config:",split_config)
             CustomDataset = eval(split_config.dataset_class)
             dataset = CustomDataset(
                 name=dataset_config.name + '_' + split,

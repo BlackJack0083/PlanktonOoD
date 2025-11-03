@@ -12,6 +12,21 @@ You may use `imglist_generator.py` to generate an imglist for your new dataset, 
 
 > Tip: If your dataset path contains spaces, please note that you need to change `split` to `rsplit` in `line 60` of `openood/datasets/imglist_dataset.py` (we have already made this adjustment).
 
+### Place your `.pth` files into correct position
+
+You may download suitable files [here](https://github.com/Jingkang50/OpenOOD), or if you' d like to train a model from scratch, you may set up in corresponding `[model_name].yml`(e.g. `resnet50.yml`):
+
+```yaml
+network:
+  name: resnet50
+  num_classes: '@{dataset.num_classes}'
+  image_size: '@{dataset.image_size}'
+  pretrained: False          # set 'True' to load pretrained model
+
+  # default pretrained model: https://download.pytorch.org/models/resnet50-0676ba61.pth
+  checkpoint: ./checkpoints/resnet50-0676ba61.pth           # ignore if pretrained is false
+  num_gpus: '@{num_gpus}'
+```
 
 ## Training Stage
 

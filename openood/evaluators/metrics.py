@@ -4,23 +4,13 @@ from sklearn import metrics
 
 def compute_all_metrics(conf, label, pred):
     np.set_printoptions(precision=3)
-    recall = 0.95
-    fpr, thresh = fpr_recall(conf, label, recall)
-    auroc, aupr_in, aupr_out = auc(conf, label)
+    recall_95 = 0.95
+    recall_99 = 0.99
+    fpr95_id, fpr99_id, fpr95_ood, fpr99_ood, auroc, aupr_in, aupr_out = auc_and_fpr_recall(conf, label, recall_95, recall_99)
 
-    ccr_1 = ccr_fpr(conf, 0.1, pred, label)
-    ccr_2 = ccr_fpr(conf, 0.01, pred, label)
-    ccr_3 = ccr_fpr(conf, 0.001, pred, label)
-    ccr_4 = ccr_fpr(conf, 0.0001, pred, label)
+    # accuracy = acc(pred, label)
 
-    accuracy = acc(pred, label)
-
-    results1 = np.array(
-        [fpr, auroc, aupr_in, aupr_out, ccr_4, ccr_3, ccr_2, ccr_1, accuracy])
-
-    results = [
-        fpr, auroc, aupr_in, aupr_out, ccr_4, ccr_3, ccr_2, ccr_1, accuracy
-    ]
+    results = [fpr95_id, fpr99_id, fpr95_ood, fpr99_ood, auroc, aupr_in, aupr_out]
 
     return results
 
@@ -37,43 +27,55 @@ def acc(pred, label):
 
 
 # fpr_recall
-def fpr_recall(conf, label, tpr):
-    # ind_conf = conf[label != -1]
-    # ood_conf = conf[label == -1]
-    # num_ind = len(ind_conf)
-    # num_ood = len(ood_conf)
-    gt = np.ones_like(label)
-    gt[label == -1] = 0
-    # recall_num = int(np.floor(tpr * num_ind))
-    # thresh = np.sort(ind_conf)[-recall_num]
-    # num_fp = np.sum(ood_conf > thresh)
-    # fpr = num_fp / num_ood
+def fpr_recall(conf, gt, tpr):
+    #gt = np.ones_like(label)
+    #gt[label == -1] = 0
 
     fpr_list, tpr_list, threshold_list = metrics.roc_curve(gt, conf)
-    fpr = fpr_list[np.argmax(tpr_list >= tpr)]
-    thresh = threshold_list[np.argmax(tpr_list >= tpr)]
+    idx = np.argmax(tpr_list >= tpr)
+    fpr = fpr_list[idx]
+    thresh = threshold_list[idx]
     return fpr, thresh
 
 
 # auc
-def auc(conf, label):
+def auc_and_fpr_recall(conf, label, tpr_th_95, tpr_th_99):
+    # following convention in ML we treat OOD as positive
+    ood_indicator = np.zeros_like(label)
+    ood_indicator[label == -1] = 1
 
-    ind_indicator = np.zeros_like(label)
-    ind_indicator[label != -1] = 1
+    # caculate the indicator that treat id as positive
+    id_indicator = 1 - ood_indicator
 
-    fpr, tpr, thresholds = metrics.roc_curve(ind_indicator, conf)
+    # A. ID as Positive (Using ID labels and ID scores)
+    # fpr_at_tpr uses ID indicator logic internally (label != -1 -> 1)
+    fpr95_id, _ = fpr_recall(conf, id_indicator, tpr_th_95)
+    fpr99_id, _ = fpr_recall(conf, id_indicator, tpr_th_99)    
 
-    precision_in, recall_in, thresholds_in \
-        = metrics.precision_recall_curve(ind_indicator, conf)
+    # B. OOD as Positive (Using OOD labels and OOD scores)
+    # The internal logic of fpr_at_tpr (where label == -1 -> 0) is actually matching 
+    # the ID-positive convention. When calculating OOD-positive, we pass in the OOD_indicator
+    # as the label and OOD_conf as the scores.
+     # in the postprocessor we assume ID samples will have larger
+    # "conf" values than OOD samples
+    # therefore here we need to negate the "conf" values
+    fpr95_ood, _ = fpr_recall(-conf, ood_indicator, tpr_th_95) # OOD 分数越小越好，取 -conf
+    fpr99_ood, _ = fpr_recall(-conf, ood_indicator, tpr_th_99)
 
-    precision_out, recall_out, thresholds_out \
-        = metrics.precision_recall_curve(1 - ind_indicator, 1 - conf)
+    # AUROC (Always based on OOD-Positive convention)
+    fpr_ood_list, tpr_ood_list, _ = metrics.roc_curve(ood_indicator, -conf)
+    auroc = metrics.auc(fpr_ood_list, tpr_ood_list)
 
-    auroc = metrics.auc(fpr, tpr)
+
+    # AUPR_in (ID as Positive)
+    precision_in, recall_in, _ = metrics.precision_recall_curve(id_indicator, conf)
     aupr_in = metrics.auc(recall_in, precision_in)
+    
+    # AUPR_out (OOD as Positive)
+    precision_out, recall_out, _ = metrics.precision_recall_curve(ood_indicator, -conf)
     aupr_out = metrics.auc(recall_out, precision_out)
-
-    return auroc, aupr_in, aupr_out
+    
+    return fpr95_id, fpr99_id, fpr95_ood, fpr99_ood, auroc, aupr_in, aupr_out
 
 
 # ccr_fpr

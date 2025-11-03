@@ -1,6 +1,7 @@
 from openood.pipelines import get_pipeline
 from openood.utils import launch, setup_config
-
+ 
+  
 
 def main(config):
     """Main entrance. Config is all you need to provide to run the code. Config
