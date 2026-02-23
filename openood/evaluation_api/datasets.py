@@ -51,7 +51,7 @@ DATA_INFO = {
                 },
                 'cifar10': {
                     'data_dir': 'images_classic/',
-                    'imglist_path': 'benchmark_imglist/cifar10/test_cifar10.txt'
+                    'imglist_path': 'benchmark_imglist/cifar100/test_cifar10.txt'
                 },
                 'cifar100': {
                     'data_dir': 'images_classic/',
