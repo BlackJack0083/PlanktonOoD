@@ -39,12 +39,8 @@ class BaseTrainer:
         )
         
         if self.config.trainer.get('loss_type', 'cross_entropy') == 'focal':
-            alpha = self.config.trainer.get('loss_alpha', None)
-            # 如果 alpha 是列表，转成 Tensor 存着，后面 forward 会自动处理设备对齐
-            if isinstance(alpha, list):
-                alpha = torch.Tensor(alpha)
             self.criterion = FocalLoss(
-                alpha=alpha,
+                alpha=self.config.trainer.get('loss_alpha', None),
                 gamma=self.config.trainer.get('loss_gamma', 2.0)
             )
         else:

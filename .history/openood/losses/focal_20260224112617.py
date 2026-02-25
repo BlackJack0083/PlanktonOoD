@@ -28,18 +28,12 @@ class FocalLoss(nn.Module):
             logit = self.apply_nonlin(logit)
         num_class = logit.shape[1]
 
-        # image segmentation
-        if logit.dim() > 2: 
+        if logit.dim() > 2:
             # N,C,d1,d2 -> N,C,m (m=d1*d2*...)
-            # [N, C, H, W] -> [N, C, H*W]
             logit = logit.view(logit.size(0), logit.size(1), -1)
-            # [N, C, H*W] -> [N, H*W, C]
             logit = logit.permute(0, 2, 1).contiguous()
-            # [N, H*W, C] -> [Total_Pixels, C]
             logit = logit.view(-1, logit.size(-1))
-        # turn [N, 1] to [N] if target is of shape [N, 1]
         target = torch.squeeze(target, 1)
-        # turn [N] to [N, 1]
         target = target.view(-1, 1)
         alpha = self.alpha
 

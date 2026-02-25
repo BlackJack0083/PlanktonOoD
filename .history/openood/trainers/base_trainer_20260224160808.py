@@ -37,19 +37,6 @@ class BaseTrainer:
                 1e-6 / config.optimizer.lr,
             ),
         )
-        
-        if self.config.trainer.get('loss_type', 'cross_entropy') == 'focal':
-            alpha = self.config.trainer.get('loss_alpha', None)
-            # 如果 alpha 是列表，转成 Tensor 存着，后面 forward 会自动处理设备对齐
-            if isinstance(alpha, list):
-                alpha = torch.Tensor(alpha)
-            self.criterion = FocalLoss(
-                alpha=alpha,
-                gamma=self.config.trainer.get('loss_gamma', 2.0)
-            )
-        else:
-            self.criterion = nn.CrossEntropyLoss()
-            
 
     def train_epoch(self, epoch_idx):
         self.net.train()
@@ -70,7 +57,10 @@ class BaseTrainer:
             # forward
             logits_classifier = self.net(data)
 
-            loss = self.criterion(logits_classifier, target)    
+            if self.config.trainer.loss_type == 'focal':
+                loss = FocalLoss()(logits_classifier, target)
+            else:
+                loss = F.cross_entropy(logits_classifier, target)
 
             # backward
             self.optimizer.zero_grad()
